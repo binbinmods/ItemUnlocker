@@ -1,0 +1,7 @@
+{
+  "name": "Item_Unlocker",
+  "version_number": "1.0.0",
+  "website_url": "https://github.com/binbinmods/ItemUnlocker",
+  "description": "A mod that ...",
+  "dependencies": ["BepInEx-BepInExPack_AcrossTheObelisk-5.4.23"]
+}
