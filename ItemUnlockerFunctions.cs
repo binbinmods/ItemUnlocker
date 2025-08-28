@@ -17,7 +17,18 @@ namespace ItemUnlocker
     {
 
 
+        public static void UnlockItem(string itemId)
+        {
+            Dictionary<string, CardData> cardsSource = Traverse.Create(Globals.Instance).Field("_CardsSource").GetValue<Dictionary<string, CardData>>();
+            if (cardsSource.TryGetValue(itemId, out CardData card))
+            {
+                if (card != null && card.Item != null)
+                    card.Item.DropOnly = false;
+            }
 
+            Traverse.Create(Globals.Instance).Field("_CardsSource").SetValue(cardsSource);
+
+        }
 
     }
 }

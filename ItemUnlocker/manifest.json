@@ -2,6 +2,6 @@
   "name": "Item_Unlocker",
   "version_number": "1.0.0",
   "website_url": "https://github.com/binbinmods/ItemUnlocker",
-  "description": "A mod that ...",
+  "description": "Allows you to find duplicates of drop-only items after seeing them once.",
   "dependencies": ["BepInEx-BepInExPack_AcrossTheObelisk-5.4.23"]
 }
