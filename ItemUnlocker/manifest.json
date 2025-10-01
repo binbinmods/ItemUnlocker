@@ -1,7 +1,9 @@
 {
-  "name": "Item_Unlocker",
+  "name": "Find_Drop_Only_Items",
   "version_number": "1.0.0",
   "website_url": "https://github.com/binbinmods/ItemUnlocker",
-  "description": "Allows you to find duplicates of drop-only items after seeing them once.",
-  "dependencies": ["BepInEx-BepInExPack_AcrossTheObelisk-5.4.23"]
+  "description": "Allows you to find duplicates of drop-only items after seeing them during a run. Alternatively, lets you set all drop-only items to not drop-only so they can be found from the start.",
+  "dependencies": [
+    "BepInEx-BepInExPack_AcrossTheObelisk-5.4.23"
+  ]
 }

@@ -31,13 +31,23 @@ namespace ItemUnlocker
 
 
 
-
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(MainMenuManager), "Start")]
+        public static void MMStartPostfix(ref MainMenuManager __instance)
+        {
+            if (NoDropOnlyItems.Value)
+            {
+                UpdateDropOnlyItems();
+            }
+            SetStarterItems();
+        }
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(LootManager), "ShowItemsForLoot")]
         public static void ShowItemsForLootPostfix(string itemListId)
         {
-
+            if (!UnlockAsYouGo.Value)
+                return;
             List<string> itemList = AtOManager.Instance.GetItemList(itemListId);
             foreach (string itemId in itemList)
             {

@@ -1,4 +1,4 @@
-# Item Unlocker
+# Find Droponly Items
 
 This is a simple mod that allows you to find duplicates of drop-only items after seeing them once.
 
@@ -12,6 +12,9 @@ This has not been tested in multiplayer yet, so let me know if there are any iss
 | :-------------- | :-----: | :------------------------------------------------------------------------------------------ |
 | EnableMod       |  true   | Enables the mod. Restart the game after changing this.                                      |
 | EnableDebugging |  false  | Enables debugging for if errors occur. Please enable this before submitting a LogOutput.log |
+| UnlockAsYouGo   |  true   | Whenever you see a drop-only item, it will be set to not drop-only, so you can see it in future shops. |
+| NoDropOnlyItems |  false  | If true, all drop-only items will be set to not drop-only when the game launches. Requires restart. |
+
 
 ## Installation (manual)
 

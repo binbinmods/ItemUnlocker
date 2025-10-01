@@ -9,6 +9,7 @@ using static Obeliskial_Essentials.CardDescriptionNew;
 using BepInEx.Bootstrap;
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 
 // The Plugin csharp file is used to specify some general info about your plugin. and set up things for 
@@ -45,13 +46,12 @@ namespace ItemUnlocker
         public static bool EssentialsInstalled = false;
         public static ConfigEntry<bool> EnableMod { get; set; }
         public static ConfigEntry<bool> EnableDebugging { get; set; }
-        // public static ConfigEntry<bool> EnablePerkChangeInTowns { get; set; }
-        // public static ConfigEntry<bool> EnablePerkChangeWhenever { get; set; }
-        // public static bool EnablePerkChangeInTownsMP { get; set; }
-        // public static bool EnablePerkChangeWheneverMP { get; set; }
+        public static ConfigEntry<bool> UnlockAsYouGo { get; set; }
+        public static ConfigEntry<bool> NoDropOnlyItems { get; set; }
+        public static ConfigEntry<bool> DisableStarterItems { get; set; }
 
 
-        internal int ModDate = int.Parse(DateTime.Today.ToString("yyyyMMdd"));
+        internal static int ModDate = int.Parse(DateTime.Today.ToString("yyyyMMdd"));
         private readonly Harmony harmony = new(PluginInfo.PLUGIN_GUID);
         internal static ManualLogSource Log;
 
@@ -62,40 +62,21 @@ namespace ItemUnlocker
 
             // The Logger will allow you to print things to the LogOutput (found in the BepInEx directory)
             Log = Logger;
-            Log.LogInfo($"{PluginInfo.PLUGIN_GUID} {PluginInfo.PLUGIN_VERSION} has loaded!");
+            // Log.LogInfo($"{PluginInfo.PLUGIN_GUID} {PluginInfo.PLUGIN_VERSION} has loaded!");
 
             // Sets the title, default values, and descriptions
-            string modName = "ItemUnlocker";
+            string modName = "Find Drop Only Items";
             EnableMod = Config.Bind(new ConfigDefinition(modName, "EnableMod"), true, new ConfigDescription("Enables the mod. If false, the mod will not work then next time you load the game."));
             EnableDebugging = Config.Bind(new ConfigDefinition(modName, "EnableDebugging"), false, new ConfigDescription("Enables the debugging"));
-            // EnablePerkChangeInTowns = Config.Bind(new ConfigDefinition(modName, "EnablePerkChangeInTowns"), true, new ConfigDescription("Enables you to change perks in any town."));
-            // EnablePerkChangeInTownsMP = true; // = Config.Bind(new ConfigDefinition(modName, "EnablePerkChangeInTownsMP"), true, new ConfigDescription("Enables you to change perks in any town for multiplayer."));
-            // EnablePerkChangeWhenever = Config.Bind(new ConfigDefinition(modName, "EnablePerkChangeWhenever"), false, new ConfigDescription("Enables you to change perks at any time."));
-            // EnablePerkChangeWheneverMP = true; //Config.Bind(new ConfigDefinition(modName, "EnablePerkChangeWheneverMP"), false, new ConfigDescription("Enables you to change perks at any time for Multiplayer."));
-
-
-
-            // DevMode = Config.Bind(new ConfigDefinition("DespairMode", "DevMode"), false, new ConfigDescription("Enables all of the things for testing."));
-
-
-            EssentialsInstalled = Chainloader.PluginInfos.ContainsKey("com.stiffmeds.obeliskialessentials");
-
-            // Register with Obeliskial Essentials
-            if (EssentialsInstalled)
-            {
-                RegisterMod(
-                    _name: PluginInfo.PLUGIN_NAME,
-                    _author: "binbin",
-                    _description: "Item Unlocker",
-                    _version: PluginInfo.PLUGIN_VERSION,
-                    _date: ModDate,
-                    _link: @"https://github.com/binbinmods/ItemUnlocker"
-                );
-
-            }
-
+            UnlockAsYouGo = Config.Bind(new ConfigDefinition(modName, "UnlockAsYouGo"), true, new ConfigDescription("Whenever you see a drop-only item, it will be set to not drop-only, so you can see it in future shops."));
+            NoDropOnlyItems = Config.Bind(new ConfigDefinition(modName, "NoDropOnlyItems"), false, new ConfigDescription("If true, all drop-only items will be set to not drop-only when the game launches. Requires restart"));
+            DisableStarterItems = Config.Bind(new ConfigDefinition(modName, "DisableStarterItems"), false, new ConfigDescription("If true, the upgraded versions of starter items will not be included in the pool."));
             // apply patches, this functionally runs all the code for Harmony, running your mod
-            if (EnableMod.Value) { harmony.PatchAll(); }
+            if (EnableMod.Value)
+            {
+                EssentialsRegister();
+                harmony.PatchAll();
+            }
         }
 
 
@@ -115,6 +96,29 @@ namespace ItemUnlocker
         internal static void LogError(string msg)
         {
             Log.LogError(debugBase + msg);
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
+        internal static void EssentialsRegister()
+        {
+            // Register with Obeliskial Essentials
+            EssentialsInstalled = Chainloader.PluginInfos.ContainsKey("com.stiffmeds.obeliskialessentials");
+            if (EssentialsInstalled)
+            {
+                RegisterMod(
+                    _name: PluginInfo.PLUGIN_NAME,
+                    _author: "binbin",
+                    _description: "Item Unlocker",
+                    _version: PluginInfo.PLUGIN_VERSION,
+                    _date: ModDate,
+                    _link: @"https://github.com/binbinmods/ItemUnlocker"
+                );
+                LogInfo($"{PluginInfo.PLUGIN_GUID} {PluginInfo.PLUGIN_VERSION} has loaded!");
+            }
+            else
+            {
+                LogInfo($"{PluginInfo.PLUGIN_GUID} {PluginInfo.PLUGIN_VERSION} has loaded. Obeliskial Essentials is not installed. Essentials features will not be available, but mod will still load.");
+            }
         }
     }
 }
