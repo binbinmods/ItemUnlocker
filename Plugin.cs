@@ -50,6 +50,9 @@ namespace ItemUnlocker
         public static ConfigEntry<bool> NoDropOnlyItems { get; set; }
         public static ConfigEntry<bool> DisableStarterItems { get; set; }
 
+        public static string PluginName;
+        public static string PluginGUID;
+        public static string PluginVersion;
 
         internal static int ModDate = int.Parse(DateTime.Today.ToString("yyyyMMdd"));
         private readonly Harmony harmony = new(PluginInfo.PLUGIN_GUID);
@@ -72,9 +75,14 @@ namespace ItemUnlocker
             NoDropOnlyItems = Config.Bind(new ConfigDefinition(modName, "NoDropOnlyItems"), false, new ConfigDescription("If true, all drop-only items will be set to not drop-only when the game launches. Requires restart"));
             DisableStarterItems = Config.Bind(new ConfigDefinition(modName, "DisableStarterItems"), false, new ConfigDescription("If true, the upgraded versions of starter items will not be included in the pool."));
             // apply patches, this functionally runs all the code for Harmony, running your mod
+
+            PluginName = PluginInfo.PLUGIN_NAME;
+            PluginGUID = PluginInfo.PLUGIN_GUID;
+            PluginVersion = PluginInfo.PLUGIN_VERSION;
+
             if (EnableMod.Value)
             {
-                EssentialsRegister();
+                EssentialsCompatibility.EssentialsRegister();
                 harmony.PatchAll();
             }
         }
@@ -98,27 +106,6 @@ namespace ItemUnlocker
             Log.LogError(debugBase + msg);
         }
 
-        [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
-        internal static void EssentialsRegister()
-        {
-            // Register with Obeliskial Essentials
-            EssentialsInstalled = Chainloader.PluginInfos.ContainsKey("com.stiffmeds.obeliskialessentials");
-            if (EssentialsInstalled)
-            {
-                RegisterMod(
-                    _name: PluginInfo.PLUGIN_NAME,
-                    _author: "binbin",
-                    _description: "Item Unlocker",
-                    _version: PluginInfo.PLUGIN_VERSION,
-                    _date: ModDate,
-                    _link: @"https://github.com/binbinmods/ItemUnlocker"
-                );
-                LogInfo($"{PluginInfo.PLUGIN_GUID} {PluginInfo.PLUGIN_VERSION} has loaded!");
-            }
-            else
-            {
-                LogInfo($"{PluginInfo.PLUGIN_GUID} {PluginInfo.PLUGIN_VERSION} has loaded. Obeliskial Essentials is not installed. Essentials features will not be available, but mod will still load.");
-            }
-        }
+
     }
 }
