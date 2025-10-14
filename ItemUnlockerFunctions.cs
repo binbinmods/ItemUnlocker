@@ -20,9 +20,20 @@ namespace ItemUnlocker
         public static void SetStarterItems()
         {
             starterItems = [];
-            Dictionary<string, SubClassData> _subClassDataSource = Traverse.Create(Globals.Instance).Field("_SubClassDataSource").GetValue<Dictionary<string, SubClassData>>();
+            Dictionary<string, SubClassData> _subClassDataSource = Traverse.Create(Globals.Instance).Field("_SubClassSource").GetValue<Dictionary<string, SubClassData>>();
+            if (_subClassDataSource == null)
+            {
+                LogError("Failed to get subclass data source");
+                return;
+            }
+
             foreach (SubClassData subclass in _subClassDataSource.Values)
             {
+                if (subclass == null || subclass.Item == null)
+                {
+                    LogError($"Subclass {subclass?.Id ?? ""} or subclass item is null");
+                    continue;
+                }
                 starterItems.Add(subclass.Item.Id);
             }
         }
