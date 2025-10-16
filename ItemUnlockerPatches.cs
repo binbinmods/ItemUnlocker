@@ -35,11 +35,11 @@ namespace ItemUnlocker
         [HarmonyPatch(typeof(MainMenuManager), "Start")]
         public static void MMStartPostfix(ref MainMenuManager __instance)
         {
+            SetStarterItems();
             if (NoDropOnlyItems.Value)
             {
                 UpdateDropOnlyItems();
             }
-            SetStarterItems();
         }
 
         [HarmonyPostfix]

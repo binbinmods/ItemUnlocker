@@ -49,6 +49,7 @@ namespace ItemUnlocker
         public static ConfigEntry<bool> UnlockAsYouGo { get; set; }
         public static ConfigEntry<bool> NoDropOnlyItems { get; set; }
         public static ConfigEntry<bool> DisableStarterItems { get; set; }
+        public static ConfigEntry<bool> DisableStarterItemUpgrades { get; set; }
 
         public static string PluginName;
         public static string PluginGUID;
@@ -73,7 +74,8 @@ namespace ItemUnlocker
             EnableDebugging = Config.Bind(new ConfigDefinition(modName, "EnableDebugging"), false, new ConfigDescription("Enables the debugging"));
             UnlockAsYouGo = Config.Bind(new ConfigDefinition(modName, "UnlockAsYouGo"), true, new ConfigDescription("Whenever you see a drop-only item, it will be set to not drop-only, so you can see it in future shops."));
             NoDropOnlyItems = Config.Bind(new ConfigDefinition(modName, "NoDropOnlyItems"), false, new ConfigDescription("If true, all drop-only items will be set to not drop-only when the game launches. Requires restart"));
-            DisableStarterItems = Config.Bind(new ConfigDefinition(modName, "DisableStarterItems"), false, new ConfigDescription("If true, the upgraded versions of starter items will not be included in the pool."));
+            DisableStarterItems = Config.Bind(new ConfigDefinition(modName, "DisableStarterItems"), false, new ConfigDescription("If true, all versions of starter items will not be included in the pool."));
+            DisableStarterItemUpgrades = Config.Bind(new ConfigDefinition(modName, "DisableStarterItemUpgrades"), true, new ConfigDescription("If true, the upgraded versions of starter items will not be included in the pool."));
             // apply patches, this functionally runs all the code for Harmony, running your mod
 
             PluginName = PluginInfo.PLUGIN_NAME;
@@ -82,7 +84,10 @@ namespace ItemUnlocker
 
             if (EnableMod.Value)
             {
-                EssentialsCompatibility.EssentialsRegister();
+                if (EssentialsCompatibility.Enabled)
+                    EssentialsCompatibility.EssentialsRegister();
+                else
+                    LogInfo($"{PluginGUID} {PluginVersion} has loaded!");
                 harmony.PatchAll();
             }
         }

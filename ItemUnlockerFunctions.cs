@@ -10,6 +10,7 @@ using UnityEngine.TextCore.LowLevel;
 using static ItemUnlocker.Plugin;
 using System.Collections.ObjectModel;
 using UnityEngine;
+using System.Data.Common;
 
 namespace ItemUnlocker
 {
@@ -31,11 +32,13 @@ namespace ItemUnlocker
             {
                 if (subclass == null || subclass.Item == null)
                 {
-                    LogError($"Subclass {subclass?.Id ?? ""} or subclass item is null");
+                    LogDebug($"Subclass {subclass?.Id ?? ""} or subclass item is null");
                     continue;
                 }
                 starterItems.Add(subclass.Item.Id);
             }
+
+            // LogDebug($"StarterItem List = {string.Join(", ", starterItems)}");
         }
 
         public static bool IsStarterItem(string itemID)
@@ -58,7 +61,8 @@ namespace ItemUnlocker
             //bool bHasSOU = (GameManager.Instance != null && GameManager.Instance.IsMultiplayer() && NetworkManager.Instance != null && NetworkManager.Instance.AnyPlayersHaveSku("2511580")) || (SteamManager.Instance != null && SteamManager.Instance.PlayerHaveDLC("2511580"));
             foreach (string itemID in itemDataLocal.Keys)
             {
-                if (itemDataLocal.ContainsKey(itemID))
+                if (itemDataLocal.ContainsKey(itemID) &&
+                    ShouldMakeCardDroponly(itemID, itemDataLocal))
                 {
                     itemDataLocal[itemID].DropOnly = false;
                 }
@@ -69,18 +73,57 @@ namespace ItemUnlocker
             Dictionary<string, CardData> cardsLocal = Traverse.Create(Globals.Instance).Field("_Cards").GetValue<Dictionary<string, CardData>>();
             foreach (string cardID in cardSourceLocal.Keys)
             {
-                if (cardsLocal.ContainsKey(cardID) && cardsLocal[cardID].CardType != Enums.CardType.Pet && cardsLocal[cardID].Item != null)
+                if (cardsLocal.ContainsKey(cardID) &&
+                    cardsLocal[cardID].CardType != Enums.CardType.Pet &&
+                    cardsLocal[cardID].Item != null &&
+                    ShouldMakeCardDroponly(cardID, cardSourceLocal))
                 {
-                    if (cardSourceLocal[cardID].CardUpgraded != Enums.CardUpgraded.No || (DisableStarterItems.Value && IsStarterItem(cardID)))
-                    {
-                        continue;
-                    }
+                    if (cardSourceLocal[cardID].Item.DropOnly)
+                        LogDebug($"Adding {cardID} to pool");
                     cardSourceLocal[cardID].Item.DropOnly = false;
                     cardsLocal[cardID].Item.DropOnly = false;
                 }
             }
             Traverse.Create(Globals.Instance).Field("_Cards").SetValue(cardsLocal);
             Traverse.Create(Globals.Instance).Field("_CardsSource").SetValue(cardSourceLocal);
+        }
+
+        public static bool ShouldMakeCardDroponly(string id, Dictionary<string, ItemData> data)
+        {
+            if (id.EndsWith("rare"))
+                return false;
+            if (IsStarterItem(id))
+            {
+                LogDebug($"Starter item Found {id}");
+                return false;
+            }
+            if (IsStarterItem(id) && DisableStarterItems.Value)
+                return false;
+            if (IsStarterItem(id) && DisableStarterItemUpgrades.Value && (id.EndsWith("a") || id.EndsWith("b")))
+                return false;
+            return true;
+        }
+
+        public static bool ShouldMakeCardDroponly(string id, Dictionary<string, CardData> data)
+        {
+            if (IsStarterItem(id))
+            {
+                LogDebug($"Starter item Found {id}");
+                return false;
+            }
+
+            if (data.TryGetValue(id, out CardData card))
+            {
+                if ((card.CardUpgraded == Enums.CardUpgraded.Rare) ||
+                    (card.CardUpgraded != Enums.CardUpgraded.No && DisableStarterItemUpgrades.Value && IsStarterItem(id)) ||
+                    (DisableStarterItems.Value && IsStarterItem(id)))
+                {
+                    return false;
+                }
+                return true;
+            }
+            return false;
+
         }
 
         public static void UnlockItem(string itemId)

@@ -1,3 +1,7 @@
+# 1.0.4
+
+Added option to remove all starter items
+
 # 1.0.3
 
 Added protection for null heroes.
